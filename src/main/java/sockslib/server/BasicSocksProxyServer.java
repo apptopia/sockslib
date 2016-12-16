@@ -23,6 +23,7 @@ import sockslib.common.net.NetworkMonitor;
 import sockslib.server.listener.PipeInitializer;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
@@ -117,9 +118,15 @@ public class BasicSocksProxyServer implements SocksProxyServer, Runnable {
    */
   private int bufferSize = 1024 * 1024 * 5;
 
+  private InetAddress bindAddress = null;
+
   private int bindPort = DEFAULT_SOCKS_PORT;
 
   private SocksProxy proxy;
+
+  private InetAddress localAddress;
+
+  private int localPort;
 
   private NetworkMonitor networkMonitor = new NetworkMonitor();
 
@@ -177,7 +184,7 @@ public class BasicSocksProxyServer implements SocksProxyServer, Runnable {
 
   @Override
   public void run() {
-    logger.info("Start proxy server at port:{}", bindPort);
+    logger.info("Start proxy server at {}:{}", bindAddress.getHostAddress(), bindPort);
     while (!stop) {
       try {
         Socket socket = serverSocket.accept();
@@ -221,15 +228,15 @@ public class BasicSocksProxyServer implements SocksProxyServer, Runnable {
 
   @Override
   public void start() throws IOException {
-    serverSocket = createServerSocket(bindPort);
+    serverSocket = createServerSocket(bindAddress, bindPort);
     thread = new Thread(this);
     thread.setName("fs-thread");
     thread.setDaemon(daemon);
     thread.start();
   }
 
-  protected ServerSocket createServerSocket(int bindPort) throws IOException {
-    return new ServerSocket(bindPort);
+  protected ServerSocket createServerSocket(InetAddress bindAddress, int bindPort) throws IOException {
+    return new ServerSocket(bindPort, 50, bindAddress);
   }
 
   @Override
@@ -247,6 +254,8 @@ public class BasicSocksProxyServer implements SocksProxyServer, Runnable {
     socksHandler.setMethodSelector(methodSelector);
     socksHandler.setBufferSize(bufferSize);
     socksHandler.setProxy(proxy);
+    socksHandler.setLocalAddress(localAddress);
+    socksHandler.setLocalPort(localPort);
     socksHandler.setSocksProxyServer(this);
   }
 
@@ -313,6 +322,36 @@ public class BasicSocksProxyServer implements SocksProxyServer, Runnable {
   @Override
   public void setProxy(SocksProxy proxy) {
     this.proxy = proxy;
+  }
+
+  @Override
+  public InetAddress getLocalAddress() {
+    return localAddress;
+  }
+
+  @Override
+  public void setLocalAddress(InetAddress localAddress) {
+    this.localAddress = localAddress;
+  }
+
+  @Override
+  public int getLocalPort() {
+    return localPort;
+  }
+
+  @Override
+  public void setLocalPort(int localPort) {
+    this.localPort = localPort;
+  }
+
+  @Override
+  public InetAddress getBindAddress() {
+    return bindAddress;
+  }
+
+  @Override
+  public void setBindAddress(InetAddress bindAddress) {
+    this.bindAddress = bindAddress;
   }
 
   @Override

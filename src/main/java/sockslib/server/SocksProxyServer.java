@@ -19,6 +19,7 @@ import sockslib.common.methods.SocksMethod;
 import sockslib.server.listener.PipeInitializer;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 
@@ -118,12 +119,25 @@ public interface SocksProxyServer {
    */
   void setProxy(SocksProxy proxy);
 
+
+  InetAddress getLocalAddress();
+
+  void setLocalAddress(InetAddress localAddress);
+
+  int getLocalPort();
+
+  void setLocalPort(int localPort);
+
   /**
    * Sets thread pool.
    *
    * @param executeService Thread pool.
    */
   void setExecutorService(ExecutorService executeService);
+
+  InetAddress getBindAddress();
+
+  void setBindAddress(InetAddress bindAddress);
 
   /**
    * Returns server bind port.

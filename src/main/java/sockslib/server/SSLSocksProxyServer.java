@@ -19,6 +19,7 @@ import sockslib.common.SocksException;
 
 import javax.net.ssl.SSLServerSocket;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -58,9 +59,9 @@ public class SSLSocksProxyServer extends BasicSocksProxyServer {
   }
 
   @Override
-  protected ServerSocket createServerSocket(int bindPort) throws IOException {
+  protected ServerSocket createServerSocket(InetAddress bindAddress, int bindPort) throws IOException {
     try {
-      return createSSLServer(bindPort);
+      return createSSLServer(bindAddress, bindPort);
     } catch (Exception e) {
       throw new SocksException(e.getMessage());
     }
@@ -74,9 +75,9 @@ public class SSLSocksProxyServer extends BasicSocksProxyServer {
     this.configuration = configuration;
   }
 
-  public ServerSocket createSSLServer(int port) throws Exception {
+  public ServerSocket createSSLServer(InetAddress address, int port) throws Exception {
     SSLServerSocket serverSocket =
-        (SSLServerSocket) configuration.getSSLServerSocketFactory().createServerSocket(port);
+        (SSLServerSocket) configuration.getSSLServerSocketFactory().createServerSocket(port, 50, address);
     if (configuration.isNeedClientAuth()) {
       serverSocket.setNeedClientAuth(true);
     } else {

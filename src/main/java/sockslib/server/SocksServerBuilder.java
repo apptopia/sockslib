@@ -13,6 +13,7 @@ import sockslib.server.listener.SessionListener;
 import sockslib.server.manager.MemoryBasedUserManager;
 import sockslib.server.manager.UserManager;
 
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -42,7 +43,10 @@ public class SocksServerBuilder {
   private Set<SocksMethod> socksMethods;
   private UserManager userManager;
   private SocksProxy proxy;
+  private InetAddress localAddress;
+  private int localPort;
   private int timeout;
+  private InetAddress bindAddress;
   private int bindPort = DEFAULT_PORT;
   private boolean daemon = false;
   private ExecutorService executorService;
@@ -172,6 +176,16 @@ public class SocksServerBuilder {
     return this;
   }
 
+  public SocksServerBuilder setLocalAddress(InetAddress localAddress) {
+    this.localAddress = localAddress;
+    return this;
+  }
+
+  public SocksServerBuilder setLocalPort(int localPort) {
+    this.localPort = localPort;
+    return this;
+  }
+
   public SocksServerBuilder setTimeout(int timeout) {
     this.timeout = timeout;
     return this;
@@ -179,6 +193,11 @@ public class SocksServerBuilder {
 
   public SocksServerBuilder setTimeout(long timeout, TimeUnit timeUnit) {
     this.timeout = (int) timeUnit.toMillis(timeout);
+    return this;
+  }
+
+  public SocksServerBuilder setBindAddress(InetAddress bindAddress) {
+    this.bindAddress = bindAddress;
     return this;
   }
 
@@ -244,6 +263,9 @@ public class SocksServerBuilder {
       proxyServer = new SSLSocksProxyServer(socksHandlerClass, sslConfiguration);
     }
     proxyServer.setTimeout(timeout);
+    if (bindAddress != null) {
+      proxyServer.setBindAddress(bindAddress);
+    }
     proxyServer.setBindPort(bindPort);
     proxyServer.setDaemon(daemon);
     proxyServer.setSessionManager(sessionManager);
@@ -274,6 +296,13 @@ public class SocksServerBuilder {
     if (proxy != null) {
       proxyServer.setProxy(proxy);
     }
+
+    if (localAddress != null) {
+      proxyServer.setLocalAddress(localAddress);
+    }
+
+    proxyServer.setLocalPort(localPort);
+
     for (String name : sessionListeners.keySet()) {
       proxyServer.getSessionManager().addSessionListener(name, sessionListeners.get(name));
     }

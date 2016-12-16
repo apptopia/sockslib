@@ -19,6 +19,7 @@ import sockslib.common.SocksException;
 import sockslib.server.msg.CommandMessage;
 
 import java.io.IOException;
+import java.net.InetAddress;
 
 /**
  * The interface <code>SocksHandler</code> represents a socket handler.
@@ -118,6 +119,10 @@ public interface SocksHandler extends Runnable {
   void setIdleTime(int idleTime);
 
   void setProxy(SocksProxy socksProxy);
+
+  void setLocalAddress(InetAddress localAddress);
+
+  void setLocalPort(int localPort);
 
   SocksProxyServer getSocksProxyServer();
 

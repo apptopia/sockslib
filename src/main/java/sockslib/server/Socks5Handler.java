@@ -70,6 +70,8 @@ public class Socks5Handler implements SocksHandler {
   private int idleTime = 2000;
 
   private SocksProxy proxy;
+  private InetAddress localAddress;
+  private int localPort = 0;
 
   private SocksProxyServer socksProxyServer;
 
@@ -144,7 +146,11 @@ public class Socks5Handler implements SocksHandler {
     try {
       // Connect directly.
       if (proxy == null) {
-        socket = new Socket(remoteServerAddress, remoteServerPort);
+        if (localAddress == null) {
+          socket = new Socket(remoteServerAddress, remoteServerPort);
+        } else {
+          socket = new Socket(remoteServerAddress, remoteServerPort, localAddress, localPort);
+        }
       } else {
         socket = new SocksSocket(proxy, remoteServerAddress, remoteServerPort);
       }
@@ -314,9 +320,27 @@ public class Socks5Handler implements SocksHandler {
     return proxy;
   }
 
+  public InetAddress getLocalAddress() {
+    return localAddress;
+  }
+
+  public int getLocalPort() {
+    return localPort;
+  }
+
   @Override
   public void setProxy(SocksProxy proxy) {
     this.proxy = proxy;
+  }
+
+  @Override
+  public void setLocalAddress(InetAddress localAddress) {
+    this.localAddress = localAddress;
+  }
+
+  @Override
+  public void setLocalPort(int localPort) {
+    this.localPort = localPort;
   }
 
   @Override
