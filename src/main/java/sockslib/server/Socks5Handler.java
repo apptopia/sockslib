@@ -16,6 +16,8 @@ package sockslib.server;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sockslib.client.HttpTunnelProxy;
+import sockslib.client.HttpTunnelSocket;
 import sockslib.client.SocksProxy;
 import sockslib.client.SocksSocket;
 import sockslib.common.ProtocolErrorException;
@@ -70,6 +72,7 @@ public class Socks5Handler implements SocksHandler {
   private int idleTime = 2000;
 
   private SocksProxy proxy;
+  private HttpTunnelProxy httpTunnelProxy;
   private InetAddress localAddress;
   private int localPort = 0;
 
@@ -145,14 +148,16 @@ public class Socks5Handler implements SocksHandler {
     // DO connect
     try {
       // Connect directly.
-      if (proxy == null) {
+      if (proxy == null && httpTunnelProxy == null) {
         if (localAddress == null) {
           socket = new Socket(remoteServerAddress, remoteServerPort);
         } else {
           socket = new Socket(remoteServerAddress, remoteServerPort, localAddress, localPort);
         }
-      } else {
+      } else if (proxy != null) {
         socket = new SocksSocket(proxy, remoteServerAddress, remoteServerPort);
+      } else {
+        socket = new HttpTunnelSocket(httpTunnelProxy, remoteServerAddress, remoteServerPort);
       }
       bindAddress = socket.getLocalAddress();
       bindPort = socket.getLocalPort();
@@ -331,6 +336,11 @@ public class Socks5Handler implements SocksHandler {
   @Override
   public void setProxy(SocksProxy proxy) {
     this.proxy = proxy;
+  }
+
+  @Override
+  public void setHttpTunnelProxy(HttpTunnelProxy httpTunnelProxy) {
+    this.httpTunnelProxy = httpTunnelProxy;
   }
 
   @Override

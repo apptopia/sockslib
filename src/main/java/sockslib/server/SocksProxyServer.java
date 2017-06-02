@@ -14,6 +14,7 @@
 
 package sockslib.server;
 
+import sockslib.client.HttpTunnelProxy;
 import sockslib.client.SocksProxy;
 import sockslib.common.methods.SocksMethod;
 import sockslib.server.listener.PipeInitializer;
@@ -119,6 +120,20 @@ public interface SocksProxyServer {
    */
   void setProxy(SocksProxy proxy);
 
+
+  /**
+   * Returns server's HTTP tunnel proxy.
+   *
+   * @return Server's HTTP tunnel proxy.
+   */
+  HttpTunnelProxy getHttpTunnelProxy();
+
+  /**
+   * Set HTTP tunnel proxy.
+   *
+   * @param httpTunnelProxy HTTP tunnel proxy server will use.
+   */
+  void setHttpTunnelProxy(HttpTunnelProxy httpTunnelProxy);
 
   InetAddress getLocalAddress();
 

@@ -16,6 +16,7 @@ package sockslib.server;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sockslib.client.HttpTunnelProxy;
 import sockslib.client.SocksProxy;
 import sockslib.common.methods.SocksMethod;
 import sockslib.common.net.MonitorSocketWrapper;
@@ -59,7 +60,7 @@ public class BasicSocksProxyServer implements SocksProxyServer, Runnable {
   /**
    * Number of threads in thread pool.
    */
-  protected static final int THREAD_NUMBER = 100;
+  protected static final int THREAD_NUMBER = 1;
 
   /**
    * Thread pool used to process each connection.
@@ -123,6 +124,8 @@ public class BasicSocksProxyServer implements SocksProxyServer, Runnable {
   private int bindPort = DEFAULT_SOCKS_PORT;
 
   private SocksProxy proxy;
+
+  private HttpTunnelProxy httpTunnelProxy;
 
   private InetAddress localAddress;
 
@@ -236,7 +239,7 @@ public class BasicSocksProxyServer implements SocksProxyServer, Runnable {
   }
 
   protected ServerSocket createServerSocket(InetAddress bindAddress, int bindPort) throws IOException {
-    return new ServerSocket(bindPort, 50, bindAddress);
+    return new ServerSocket(bindPort, 100, bindAddress);
   }
 
   @Override
@@ -254,6 +257,7 @@ public class BasicSocksProxyServer implements SocksProxyServer, Runnable {
     socksHandler.setMethodSelector(methodSelector);
     socksHandler.setBufferSize(bufferSize);
     socksHandler.setProxy(proxy);
+    socksHandler.setHttpTunnelProxy(httpTunnelProxy);
     socksHandler.setLocalAddress(localAddress);
     socksHandler.setLocalPort(localPort);
     socksHandler.setSocksProxyServer(this);
@@ -322,6 +326,16 @@ public class BasicSocksProxyServer implements SocksProxyServer, Runnable {
   @Override
   public void setProxy(SocksProxy proxy) {
     this.proxy = proxy;
+  }
+
+  @Override
+  public HttpTunnelProxy getHttpTunnelProxy() {
+    return httpTunnelProxy;
+  }
+
+  @Override
+  public void setHttpTunnelProxy(HttpTunnelProxy httpTunnelProxy) {
+    this.httpTunnelProxy = httpTunnelProxy;
   }
 
   @Override

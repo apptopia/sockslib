@@ -14,6 +14,7 @@
 
 package sockslib.server;
 
+import sockslib.client.HttpTunnelProxy;
 import sockslib.client.SocksProxy;
 import sockslib.common.SocksException;
 import sockslib.server.msg.CommandMessage;
@@ -119,6 +120,8 @@ public interface SocksHandler extends Runnable {
   void setIdleTime(int idleTime);
 
   void setProxy(SocksProxy socksProxy);
+
+  void setHttpTunnelProxy(HttpTunnelProxy httpTunnelProxy);
 
   void setLocalAddress(InetAddress localAddress);
 
