@@ -32,6 +32,8 @@ public class HttpTunnelProxy {
 
     private final int HTTP_DEFAULT_PORT = 80;
 
+    private static final int SO_TIMEOUT_MS = 15000;
+
     /**
      * HTTP server's port;
      */
@@ -41,6 +43,8 @@ public class HttpTunnelProxy {
      * The socket that will connect to HTTP server.
      */
     private Socket proxySocket;
+
+    private boolean plainHttpProxy = false;
 
     /**
      * Constructs a HttpTunnelProxy instance.
@@ -123,7 +127,8 @@ public class HttpTunnelProxy {
         if (proxySocket == null) {
             proxySocket = createProxySocket(inetAddress, port);
         } else if (!proxySocket.isConnected()) {
-            proxySocket.connect(new InetSocketAddress(inetAddress, port));
+            proxySocket.setSoTimeout(SO_TIMEOUT_MS);
+            proxySocket.connect(new InetSocketAddress(inetAddress, port), SO_TIMEOUT_MS);
         }
     }
 
@@ -157,6 +162,10 @@ public class HttpTunnelProxy {
 
     public Socket getProxySocket() {
         return proxySocket;
+    }
+
+    public boolean isPlainHttpProxy() {
+        return plainHttpProxy;
     }
 
     public HttpTunnelProxy setProxySocket(Socket proxySocket) {
@@ -238,9 +247,15 @@ public class HttpTunnelProxy {
         return new Socket();
     }
 
-    private void doTunnelHandshake(Socket tunnel, String targetHost, int tagetPort) throws IOException {
+    private void doTunnelHandshake(Socket tunnel, String targetHost, int targetPort) throws IOException {
+        if (isHttpPort(targetPort)) {
+            // HTTP tunnel proxies don't like CONNECTs to plain-HTTP ports
+            this.plainHttpProxy = true;
+            return;
+        }
+
         OutputStream out = tunnel.getOutputStream();
-        String msg = "CONNECT " + targetHost + ":" + tagetPort + " HTTP/1.0\n"
+        String msg = "CONNECT " + targetHost + ":" + targetPort + " HTTP/1.0\n"
                 + "Host: " + targetHost + "\n"
                 + "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:53.0) Gecko/20100101 Firefox/53.0"
                 + "\r\n\r\n";
@@ -288,5 +303,9 @@ public class HttpTunnelProxy {
                     + inetAddress.getHostAddress() + ":" + port
                     + ".  Proxy returns \"" + replyStr + "\"");
         }
+    }
+
+    private boolean isHttpPort(int port) {
+        return port == 80 || port == 8008 || port == 8080;
     }
 }

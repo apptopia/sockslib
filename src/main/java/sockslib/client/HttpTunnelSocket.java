@@ -398,4 +398,9 @@ public class HttpTunnelSocket extends Socket {
     return proxy.getProxySocket();
   }
 
+
+  public boolean isPlainHttpProxy() {
+    return proxy.isPlainHttpProxy();
+  }
+
 }

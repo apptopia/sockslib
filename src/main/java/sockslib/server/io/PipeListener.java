@@ -26,6 +26,16 @@ package sockslib.server.io;
  */
 public interface PipeListener {
 
+  class BufferAndLength {
+    public byte[] buffer;
+    public int length;
+
+    public BufferAndLength(byte[] buffer, int length) {
+      this.buffer = buffer;
+      this.length = length;
+    }
+  }
+
   /**
    * This method will be called when the {@link Pipe} started.
    *
@@ -39,6 +49,16 @@ public interface PipeListener {
    * @param pipe The stopped {@link Pipe} instance.
    */
   void onStop(Pipe pipe);
+
+  /**
+   * This method will be called before the {@link Pipe} transferring data.
+   *
+   * @param pipe         {@link Pipe} instance.
+   * @param buffer       Data which is transferring.
+   * @param bufferLength length of data.
+   */
+
+  BufferAndLength onBeforeTransfer(Pipe pipe, byte[] buffer, int bufferLength);
 
   /**
    * This method will be called when the {@link Pipe} transferring data.

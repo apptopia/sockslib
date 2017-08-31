@@ -65,6 +65,9 @@ public class Socks5 implements SocksProxy {
   public static final int REP_TTL_EXPIRED = 0x06;
   public static final int REP_COMMAND_NOT_SUPPORTED = 0x07;
   public static final int REP_ADDRESS_TYPE_NOT_SUPPORTED = 0x08;
+
+  private static final int SO_TIMEOUT_MS = 15000;
+
   /**
    * Authentication succeeded code.
    */
@@ -193,7 +196,8 @@ public class Socks5 implements SocksProxy {
     if (proxySocket == null) {
       proxySocket = createProxySocket(inetAddress, port);
     } else if (!proxySocket.isConnected()) {
-      proxySocket.connect(new InetSocketAddress(inetAddress, port));
+      proxySocket.setSoTimeout(SO_TIMEOUT_MS);
+      proxySocket.connect(new InetSocketAddress(inetAddress, port), SO_TIMEOUT_MS);
     }
 
     SocksMethod method =

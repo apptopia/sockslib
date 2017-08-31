@@ -50,12 +50,12 @@ public class SocketPipe implements Pipe {
   /**
    * Pipe one.
    */
-  private Pipe pipe1;
+  protected Pipe pipe1;
 
   /**
    * Pipe tow.
    */
-  private Pipe pipe2;
+  protected Pipe pipe2;
 
   /**
    * Socket one.
@@ -215,8 +215,14 @@ public class SocketPipe implements Pipe {
     }
 
     @Override
+    public BufferAndLength onBeforeTransfer(Pipe pipe, byte[] buffer, int bufferLength) {
+      return new BufferAndLength(buffer, bufferLength);
+    }
+
+    @Override
     public void onTransfer(Pipe pipe, byte[] buffer, int bufferLength) {
     }
+
 
     @Override
     public void onError(Pipe pipe, Exception exception) {

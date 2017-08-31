@@ -25,6 +25,7 @@ import sockslib.common.SocksException;
 import sockslib.common.methods.SocksMethod;
 import sockslib.server.io.Pipe;
 import sockslib.server.io.PipeListener;
+import sockslib.server.io.ProxyEmulatingSocketPipe;
 import sockslib.server.io.SocketPipe;
 import sockslib.server.msg.CommandMessage;
 import sockslib.server.msg.CommandResponseMessage;
@@ -187,7 +188,12 @@ public class Socks5Handler implements SocksHandler {
       return;
     }
 
-    Pipe pipe = new SocketPipe(session.getSocket(), socket);
+    Pipe pipe;
+    if (socket instanceof HttpTunnelSocket && ((HttpTunnelSocket)socket).isPlainHttpProxy()) {
+      pipe = new ProxyEmulatingSocketPipe(session.getSocket(), socket);
+    } else {
+      pipe = new SocketPipe(session.getSocket(), socket);
+    }
     pipe.setName("SESSION[" + session.getId() + "]");
     pipe.setBufferSize(bufferSize);
     if(getSocksProxyServer().getPipeInitializer() != null){

@@ -215,7 +215,7 @@ public class BasicSocksProxyServer implements SocksProxyServer, Runnable {
   @Override
   public void shutdown() {
     stop = true;
-    executorService.shutdown();
+    executorService.shutdownNow();
     if (thread != null) {
       thread.interrupt();
     }

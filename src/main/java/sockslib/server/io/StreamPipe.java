@@ -168,10 +168,16 @@ public class StreamPipe implements Runnable, Pipe {
     try {
       length = source.read(buffer);
       if (length > 0) { // transfer the buffer destination output stream.
+        for (PipeListener pipeListener : pipeListeners) {
+          PipeListener.BufferAndLength bufferAndLength = pipeListener.onBeforeTransfer(this, buffer, length);
+          buffer = bufferAndLength.buffer;
+          length = bufferAndLength.length;
+        }
+
         destination.write(buffer, 0, length);
         destination.flush();
-        for (int i = 0; i < pipeListeners.size(); i++) {
-          pipeListeners.get(i).onTransfer(this, buffer, length);
+        for (PipeListener pipeListener : pipeListeners) {
+          pipeListener.onTransfer(this, buffer, length);
         }
       }
 
@@ -221,7 +227,9 @@ public class StreamPipe implements Runnable, Pipe {
 
   @Override
   public void removePipeListener(PipeListener pipeListener) {
-    pipeListeners.remove(pipeListener);
+    if (pipeListeners.size() > 0) {
+      pipeListeners.remove(pipeListener);
+    }
   }
 
   /**

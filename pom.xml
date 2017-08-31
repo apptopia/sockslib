@@ -5,7 +5,7 @@
 
     <groupId>io.github.fengyouchao</groupId>
     <artifactId>sockslib</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.14</version>
     <packaging>jar</packaging>
 
     <name>sockslibs</name>
@@ -211,13 +211,19 @@
         <profile>
             <id>release</id>
             <distributionManagement>
-                <snapshotRepository>
+                <!--snapshotRepository>
                     <id>oss</id>
                     <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
                 </snapshotRepository>
                 <repository>
                     <id>oss</id>
                     <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+                </repository-->
+                <repository>
+                    <id>bintray-azolotko-sockslib</id>
+                    <layout>default</layout>
+                    <name>azolotko-sockslib</name>
+                    <url>https://api.bintray.com/maven/azolotko/sockslib/sockslib/;publish=0</url>
                 </repository>
             </distributionManagement>
             <build>
