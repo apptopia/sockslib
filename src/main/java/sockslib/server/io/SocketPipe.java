@@ -71,11 +71,6 @@ public class SocketPipe implements Pipe {
 
   private Map<String, Object> attributes = new HashMap<>();
 
-  /**
-   * flag.
-   */
-  private boolean running = false;
-
   private PipeListener listener = new PipeListenerImp();
 
   /**
@@ -103,20 +98,20 @@ public class SocketPipe implements Pipe {
 
   @Override
   public boolean start() {
-    running = pipe1.start() && pipe2.start();
-    return running;
+    pipe1.start();
+    pipe2.start();
+    return isRunning();
   }
 
   @Override
   public boolean stop() {
-    if (running) {
+    if (pipe1.isRunning()) {
       pipe1.stop();
-      pipe2.stop();
-      if (!pipe1.isRunning() && !pipe2.isRunning()) {
-        running = false;
-      }
     }
-    return running;
+    if (pipe2.isRunning()) {
+      pipe2.stop();
+    }
+    return isRunning();
   }
 
   @Override
@@ -151,7 +146,7 @@ public class SocketPipe implements Pipe {
 
   @Override
   public boolean isRunning() {
-    return running;
+    return pipe1.isRunning() && pipe2.isRunning();
   }
 
   @Override

@@ -206,12 +206,13 @@ public class Socks5Handler implements SocksHandler {
       try {
         Thread.sleep(idleTime);
       } catch (InterruptedException e) {
-        pipe.stop();
-        session.close();
-        logger.info("SESSION[{}] closed", session.getId());
+        break;
       }
     }
 
+    pipe.stop();
+    session.close();
+    logger.info("SESSION[{}] closed", session.getId());
   }
 
   @Override
