@@ -47,7 +47,7 @@ public class StreamPipe implements Runnable, Pipe {
   /**
    * Default buffer size.
    */
-  private static final int BUFFER_SIZE = 1024 * 1024 * 5;
+  private static final int BUFFER_SIZE = 512 * 1024;
 
   private Map<String, Object> attributes = new HashMap<>();
 
