@@ -190,7 +190,7 @@ public class Socks5Handler implements SocksHandler {
 
     Pipe pipe;
     if (socket instanceof HttpTunnelSocket && ((HttpTunnelSocket)socket).isPlainHttpProxy()) {
-      pipe = new ProxyEmulatingSocketPipe(session.getSocket(), socket);
+      pipe = new ProxyEmulatingSocketPipe(session.getSocket(), socket, httpTunnelProxy.getCredentials());
     } else {
       pipe = new SocketPipe(session.getSocket(), socket);
     }

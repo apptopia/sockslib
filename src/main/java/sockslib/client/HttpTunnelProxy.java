@@ -255,18 +255,18 @@ public class HttpTunnelProxy {
             return;
         }
 
-        String authorization;
+        String proxyAuthorization;
         if (getCredentials() instanceof AnonymousCredentials) {
-            authorization = "";
+            proxyAuthorization = "";
         } else {
             String credentialsPlain = getCredentials().getUserPrincipal().getName() + ":" + getCredentials().getPassword();
             String credentialsBase64 = Base64.getEncoder().encodeToString(credentialsPlain.getBytes());
-            authorization = "Proxy-Authorization: Basic " + credentialsBase64 + "\n";
+            proxyAuthorization = "Proxy-Authorization: Basic " + credentialsBase64 + "\n";
         }
 
         OutputStream out = tunnel.getOutputStream();
         String msg = "CONNECT " + targetHost + ":" + targetPort + " HTTP/1.0\n"
-                + authorization
+                + proxyAuthorization
                 + "Host: " + targetHost + "\n"
                 + "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:53.0) Gecko/20100101 Firefox/53.0"
                 + "\r\n\r\n";

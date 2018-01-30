@@ -16,10 +16,13 @@ package sockslib.server.io;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sockslib.common.AnonymousCredentials;
+import sockslib.common.Credentials;
 
 import java.io.IOException;
 import java.net.Socket;
 import java.nio.charset.Charset;
+import java.util.Base64;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -30,11 +33,21 @@ public class ProxyEmulatingSocketPipe extends SocketPipe {
       Pattern.compile("^(?<method>GET|HEAD|POST|PUT|DELETE|TRACE) (?<uri>/.*) HTTP/(?<version>\\d.\\d)$", Pattern.MULTILINE);
 
   private Pattern hostHeaderPattern = Pattern.compile("^Host: (?<host>.+)$", Pattern.MULTILINE);
+  private Credentials credentials = new AnonymousCredentials();
 
-  public ProxyEmulatingSocketPipe(Socket socket1, Socket socket2) throws IOException {
+  public ProxyEmulatingSocketPipe(Socket socket1, Socket socket2, Credentials credentials) throws IOException {
     super(socket1, socket2);
 
+    this.setCredentials(credentials);
     this.pipe1.addPipeListener(new ProxyEmulatingPipeListener());
+  }
+
+  private void setCredentials(Credentials credentials) {
+    this.credentials = credentials;
+  }
+
+  private Credentials getCredentials() {
+    return credentials;
   }
 
   private class ProxyEmulatingPipeListener implements PipeListener {
@@ -58,12 +71,21 @@ public class ProxyEmulatingSocketPipe extends SocketPipe {
       if (hostHeaderMatcher.find()) {
         Matcher requestLineMatcher = requestLinePattern.matcher(request);
         if (requestLineMatcher.find()) {
+          String proxyAuthorization;
+          if (getCredentials() instanceof AnonymousCredentials) {
+            proxyAuthorization = "";
+          } else {
+            String credentialsPlain = getCredentials().getUserPrincipal().getName() + ":" + getCredentials().getPassword();
+            String credentialsBase64 = Base64.getEncoder().encodeToString(credentialsPlain.getBytes());
+            proxyAuthorization = "\nProxy-Authorization: Basic " + credentialsBase64;
+          }
+
           String host = hostHeaderMatcher.group("host");
           String method = requestLineMatcher.group("method");
           String uri = requestLineMatcher.group("uri");
           String version = requestLineMatcher.group("version");
           String modifiedRequest =
-                  requestLineMatcher.replaceFirst(method + " http://" + host + uri + " HTTP/" + version);
+                  requestLineMatcher.replaceFirst(method + " http://" + host + uri + " HTTP/" + version + proxyAuthorization);
 
           byte[] modifiedRequestBuffer = modifiedRequest.getBytes(ascii);
           return new BufferAndLength(modifiedRequestBuffer, modifiedRequestBuffer.length);
