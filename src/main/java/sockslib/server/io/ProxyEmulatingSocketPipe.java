@@ -84,8 +84,10 @@ public class ProxyEmulatingSocketPipe extends SocketPipe {
           String method = requestLineMatcher.group("method");
           String uri = requestLineMatcher.group("uri");
           String version = requestLineMatcher.group("version");
-          String modifiedRequest =
-                  requestLineMatcher.replaceFirst(method + " http://" + host + uri + " HTTP/" + version + proxyAuthorization);
+          String newRequestLine = Matcher.quoteReplacement(
+                  method + " http://" + host + uri + " HTTP/" + version + proxyAuthorization);
+
+          String modifiedRequest = requestLineMatcher.replaceFirst(newRequestLine);
 
           byte[] modifiedRequestBuffer = modifiedRequest.getBytes(ascii);
           return new BufferAndLength(modifiedRequestBuffer, modifiedRequestBuffer.length);

@@ -376,7 +376,8 @@ public class HttpTunnelSocket extends Socket {
 
   @Override
   public boolean isClosed() {
-    return proxy.getProxySocket().isClosed();
+    Socket proxySocket = proxy.getProxySocket();
+    return proxySocket == null || proxySocket.isClosed();
   }
 
   @Override
